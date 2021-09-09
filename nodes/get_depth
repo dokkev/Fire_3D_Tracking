@@ -10,7 +10,7 @@ from cv_bridge import CvBridge, CvBridgeError
 import tf
 import pyrealsense2 as rs2
 from std_msgs.msg import Float32
-from thermal_image_processing.msg import point_coord
+from thermal_object_tracking.msg import point_coord
 
 
 class DepthListener:

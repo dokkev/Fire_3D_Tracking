@@ -4,8 +4,8 @@ import geometry_msgs.msg
 import math
 from std_msgs.msg import Float64
 import tf2_ros
-from thermal_image_processing.msg import xyz
-from thermal_image_processing.msg import point_coord
+from thermal_object_tracking.msg import xyz
+from thermal_object_tracking.msg import point_coord
 
 
 
