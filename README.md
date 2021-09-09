@@ -14,7 +14,6 @@
 - `OpenCv2`
 
 
-
 ## Introduction
 This package publishes `tf` called `fire` of a heating element using a thermal camera and a depth camera.Getting the pixel coordinate of the heat sourcefrom the thermal imaging,the depth value of the corrspoing pixel from the deph image is calculated. Then the pixel from the depth image is converted into a point. Knowing the transformations from `fire` to `camera_link` and `camera_link` to `world` frame, we can calculate the x, y, and z coordinates of the `fire` relative to the `world` frame
 
@@ -50,13 +49,36 @@ Publsuher:
 - /object_x (std_msgs/Float32): x-coordinate of the heat source in 2D thermal image 
 - /highest_T_detected (std_msgs/Float32): the highest tempertaure detected
 - /thermal_camera/thermal_image_bgr (sensor_msgs/Image): radiometric image in BGR format
-- /thermal_camera/thermal_image_gray (sensor_msgs/Image)): radiometric image in gray scale
+- /thermal_camera/thermal_image_gray (sensor_msgs/Image): radiometric image in gray scale
 - /combined_image (sensor_msgs/Image): combined image of radiometic image and aligned depth to color image
 - /combined_image2 (sensor_msgs/Image): combined image of radiometic image and RGB color image
 - /stacked_image (sensor_msgs/Image): horizontally stacked image of radiometic image and aligned depth to color image
 
 ## NODE: `get_depth`
 This node reads the aligned depth to color image, gets depth value from the tageted pixel, and converts the pixel to a point
+
+### SUBSCRIBER & PUBLISHER
+Subscriber:
+- /object_y (std_msgs/Float32): y-coordinate of the heat source in 2D thermal image 
+- /object_x (std_msgs/Float32): x-coordinate of the heat source in 2D thermal image 
+- /camera/aligned_depth_to_color/image_raw (sensor_msgs/Image): aligned depth to color image from `realsense`
+- /camera/aligned_depth_to_color/camera_info (sensor_msgs/CameraInfo): camera info of `realsense`'s aligned depth to color image
+
+Publisher:
+- /point_coord (thermal_object_tracking.msg/point_coord):  x, y, and depth data from the point converted from the the pixel
+
+## NODE: `tf_listener`
+This node publishes `tf` of the heat source (`fire`) and calculates the x, y, and z coordinates of the `camera_link` and `fire` relative to the `world` frame
+
+### SUBSCRIBER & PUBLISHER
+Subscriber:
+- /point_coord (thermal_object_tracking.msg/point_coord):  x, y, and depth data from the point converted from the the pixel
+
+Publisher:
+- /camera_position (thermal_object_tracking.msg/xyz): xyz-coordinate of the `camera_link` from the `world` frame
+- /fire_position (thermal_object_tracking.msg/xyz): xyz-coordinate of the `fire`from the `world` frame
+
+
 
 
 
