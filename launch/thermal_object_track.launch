@@ -17,13 +17,16 @@
   <!-- start rqt_image_view for visualization -->
  <node type="rqt_image_view" name="rqt_image_view" pkg="rqt_image_view" />
 
+<!-- start nodes -->
  <node pkg="thermal_object_tracking" type="combined_vision" name="combined_vision"/>
  <node pkg="thermal_object_tracking" type="get_depth" name="get_depth" />
  <node pkg="thermal_object_tracking" type="tf_listener" name="tf_listener" />
 
+<!-- set base_link and world frame -->
  <node pkg="tf2_ros" type="static_transform_publisher" name="base_link_broadcaster" args="0 0 0.01 0 0 0 1 base_link camera_link" />
  <node pkg="tf2_ros" type="static_transform_publisher" name="world_broadcaster" args="0 0 0 0 0 0 1 world base_link" />
 
+<!-- start Rviz -->
 <node name="rviz" pkg="rviz" type="rviz" args="-d $(find thermal_object_tracking)/config/fire_track.rviz"/>
 
 
