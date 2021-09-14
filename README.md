@@ -1,5 +1,8 @@
 # Thermal Object 3D Tracking
 
+## Demo
+Run `roslaunch thermal_object_tracking thermal_object_track.launch`
+
 ## Hardware Used
 - [FLIR Lepton 2.5 Thermal Camera](https://www.flir.com/products/lepton/)
 - [PureThermal 2 - FLIR Lepton Smart I/O Board](https://www.sparkfun.com/products/14670)
@@ -11,11 +14,11 @@
 - `ROS-noetic`
 - `realsense2_ros` packages you can install them [here](https://github.com/IntelRealSense/realsense-ros)
 - `pyrealsense2`
-- `OpenCv2`
+- `OpenCV2-Python`
 
 
 ## Introduction
-This package publishes `tf` called `fire` of a heating element using a thermal camera and a depth camera.Getting the pixel coordinate of the heat sourcefrom the thermal imaging,the depth value of the corrspoing pixel from the deph image is calculated. Then the pixel from the depth image is converted into a point. Knowing the transformations from `fire` to `camera_link` and `camera_link` to `world` frame, we can calculate the x, y, and z coordinates of the `fire` relative to the `world` frame
+This is a ROS package publishes `tf` called `fire` of a heating element using a thermal camera and a depth camera. Getting the pixel coordinate of the heat source from the thermal imaging, the depth value of the corrspoing pixel from the deph image is calculated. Then the pixel from the depth image is converted into a point. Knowing the transformations from `fire` to `camera_link` and `camera_link` to `world` frame, we can calculate the x, y, and z coordinates of the `fire` relative to the `world` frame
 
 This method does not work unless thermal camera and depth camera are located and aligned properly.
 You can take a look at the ROS topic `combined_image` to see how well they are aligned.
