@@ -23,7 +23,7 @@
  <node pkg="thermal_object_tracking" type="tf_listener" name="tf_listener" />
 
 <!-- set base_link and world frame -->
- <node pkg="tf2_ros" type="static_transform_publisher" name="base_link_broadcaster" args="0 0 0.01 0 0 0 1 base_link camera_link" />
+ <node pkg="tf2_ros" type="static_transform_publisher" name="base_link_broadcaster" args="0 0 0.2 0 0 0 1 base_link camera_link" />
  <node pkg="tf2_ros" type="static_transform_publisher" name="world_broadcaster" args="0 0 0 0 0 0 1 world base_link" />
 
 <!-- start Rviz -->
