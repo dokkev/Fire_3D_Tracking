@@ -65,8 +65,6 @@ def display_temperature(img, val_k, loc, color):
   cv2.line(img, (x, y - 2), (x, y + 2), color, 1)
 
 
-
-
 def main():
   # Ros Integration
   rospy.init_node('thermal_detection', anonymous=True)
@@ -75,6 +73,8 @@ def main():
   temp_pub = rospy.Publisher('highest_T_detected',Float32,queue_size=10)
   xcoord_pub = rospy.Publisher('object_x',Float32,queue_size=10)
   ycoord_pub = rospy.Publisher('object_y',Float32,queue_size=10)
+
+  
 
  
 
@@ -131,6 +131,7 @@ def main():
           # Raw Sensor Data to GrayScale Image
           data = cv2.resize(data[:,:], (640, 480))   
           minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(data)
+
        
           img = raw_to_8bit(data)
         
@@ -149,10 +150,17 @@ def main():
           display_temperature(img, maxVal, maxLoc, (0, 0, 255))
         
 
-          # Publish Gray Scale Img for visualization
+          
           try:
+            #set a thresh
+            thresh = 100
+            #get threshold image
             gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             gray_img = (gray_img*256).astype("uint16")
+            # ret,thresh_img = cv2.threshold(gray_img, thresh, 255, cv2.THRESH_BINARY)
+            # contours, hierarchy = cv2.findContours(thresh_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+  
+            # cv2.drawContours(gray_img, contours, -1, (0,255,0), 3)
             # print(depth_image.shape)
             # print(gray_img.shape)
             # depth_img = (depth_image/256).astype("uint8")
@@ -160,7 +168,7 @@ def main():
 
 
         
-
+            # Publish Gray Scale Img for visualization
             bgr_image_pub.publish(bridge.cv2_to_imgmsg(img, "bgr8"))
             gray_image_pub.publish(bridge.cv2_to_imgmsg(gray_img, 'mono16'))
           
