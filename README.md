@@ -3,6 +3,8 @@
 ## Demo
 Run `roslaunch thermal_object_tracking thermal_object_track.launch`
 
+[![1](http://img.youtube.com/vi/ELHQRg86zm0/0.jpg)](https://www.youtube.com/watch?v=ELHQRg86zm0)
+
 ## Hardware Used
 - [FLIR Lepton 2.5 Thermal Camera](https://www.flir.com/products/lepton/)
 - [PureThermal 2 - FLIR Lepton Smart I/O Board](https://www.sparkfun.com/products/14670)
@@ -52,7 +54,7 @@ Publsuher:
 - /object_x (std_msgs/Float32): x-coordinate of the heat source in 2D thermal image 
 - /highest_T_detected (std_msgs/Float32): the highest tempertaure detected
 - /thermal_camera/thermal_image_bgr (sensor_msgs/Image): radiometric image in BGR format
-- /thermal_camera/thermal_image_gray (sensor_msgs/Image): radiometric image in gray scale
+- /thermal_camera/thermal_image_contour (sensor_msgs/Image): radiometric image with contour of heat source
 - /combined_image (sensor_msgs/Image): combined image of radiometic image and aligned depth to color image
 - /combined_image2 (sensor_msgs/Image): combined image of radiometic image and RGB color image
 - /stacked_image (sensor_msgs/Image): horizontally stacked image of radiometic image and aligned depth to color image
