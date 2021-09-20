@@ -25,19 +25,23 @@ class tfDealer:
         self.rate = rospy.Rate(10.0)
 
     def point_coord_callback(self,data):
-        tf = geometry_msgs.msg.TransformStamped()
-        tf.header.stamp = rospy.Time.now()
-        tf.header.frame_id = "camera_link"
-        tf.child_frame_id = "fire"
-        # red = x, green = y, blue = z in Rviz Axis
-        tf.transform.translation.x = (data.depth / 1000) # mm -> m conversion
-        tf.transform.translation.y = -(data.x / 1000)
-        tf.transform.translation.z = -(data.y / 1000)
-        tf.transform.rotation.x = 0
-        tf.transform.rotation.y = 0
-        tf.transform.rotation.z = 0
-        tf.transform.rotation.w = 1
-        self.br.sendTransform(tf)
+        if data.depth != 0:
+            tf = geometry_msgs.msg.TransformStamped()
+            tf.header.stamp = rospy.Time.now()
+            tf.header.frame_id = "camera_link"
+            tf.child_frame_id = "fire"
+            # red = x, green = y, blue = z in Rviz Axis
+            tf.transform.translation.x = (data.depth / 1000) # mm -> m conversion
+            tf.transform.translation.y = -(data.x / 1000)
+            tf.transform.translation.z = -(data.y / 1000)
+            tf.transform.rotation.x = 0
+            tf.transform.rotation.y = 0
+            tf.transform.rotation.z = 0
+            tf.transform.rotation.w = 1
+            self.br.sendTransform(tf)
+        else:
+            pass
+
         # print("fire tf published!")
 
 
