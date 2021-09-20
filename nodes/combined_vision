@@ -60,6 +60,7 @@ def display_temperature(img, val_k, loc, color):
   val = ktoc(val_k)
 
   cv2.putText(img,"{0:.1f} degC".format(val), loc, cv2.FONT_HERSHEY_SIMPLEX, 0.75, color, 2)
+  cv2.putText(img,"{0:.1f} degC".format(val), loc, cv2.FONT_HERSHEY_SIMPLEX, 0.75, (128,128,128), 2)
   x, y = loc
   cv2.line(img, (x - 2, y), (x + 2, y), color, 1)
   cv2.line(img, (x, y - 2), (x, y + 2), color, 1)
@@ -72,6 +73,31 @@ def color_image_callback(data):
   global color_image
   color_image = bridge.imgmsg_to_cv2(data,desired_encoding="passthrough")
 
+def get_contour(data):
+    global cX, cY
+
+    # contour detection in the thermal image
+    # set a thresh
+    thresh = 125
+    #get threshold image
+    ret,thresh_img = cv2.threshold(data, thresh, 255, cv2.THRESH_BINARY)
+    # find contours
+    contours, hierarchy = cv2.findContours(thresh_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    cv2.drawContours(data, contours, -1, (0,255,0), 3)
+    M = cv2.moments(thresh_img)
+    if M["m00"] != 0:
+      cX = int(M["m10"] / M["m00"])
+      cY = int(M["m01"] / M["m00"])
+    else: 
+      pass
+    cv2.circle(data, (cX, cY), 5, (255, 255, 255), -1)
+    # cv2.putText(gray_img_raw, "centroid", (cX - 25, cY -25),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+    # display_temperature(data, maxVal, (cX,cY), (255, 0, 0))
+    
+ 
+    return data
+    
+
 
 def main():
   # Ros Integration
@@ -79,7 +105,7 @@ def main():
   rospy.init_node('combined_vision', anonymous=True)
   rospy.wait_for_message('/camera/aligned_depth_to_color/image_raw', Image, timeout=5)
   bgr_image_pub = rospy.Publisher('thermal_camera/thermal_image_bgr',Image, queue_size=10)
-  gray_image_pub = rospy.Publisher('thermal_camera/thermal_image_gray',Image, queue_size=10)
+  contour_image_pub = rospy.Publisher('thermal_camera/thermal_image_contour',Image, queue_size=10)
   combined_image_pub = rospy.Publisher('/combined_image',Image, queue_size=10)
   combined_image_pub2 = rospy.Publisher('/combined_image2',Image, queue_size=10)
   stacked_image_pub = rospy.Publisher('/stacked_image',Image, queue_size=10)
@@ -89,7 +115,7 @@ def main():
 
   depth_image_sub = rospy.Subscriber("/camera/aligned_depth_to_color/image_raw", Image, callback=depth_image_callback)
   color_image_sub = rospy.Subscriber("/camera/color/image_raw",Image, callback = color_image_callback)
- 
+
 
 
   ctx = POINTER(uvc_context)()
@@ -145,52 +171,50 @@ def main():
           data = cv2.resize(data[:,:], (640, 480))   
           minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(data)
        
+          # Thermal Image processing to 8 bit
           img = raw_to_8bit(data)
-        
+    
+          # Get contour
+          contour_img = get_contour(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY))
 
-          # image_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-          # print(image_rgb.shape)
-       
-          # display_temperature(img, minVal, minLoc, (0, 0, 255))
+           # display max temperature
+          display_temperature(img, maxVal, (cX,cY), (128, 128, 128))
+          display_temperature(contour_img, maxVal, (cX,cY), (128, 128, 128))
+      
+          # Thermal Image to GrayScale Image
+          gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+          gray_img16 = (gray_img*256).astype("uint16")
+
+
+          # Thermal Image to 16bit
+          thermal_img = img
+          thermal_img16 = (img*256).astype("uint16")
+          
+          # Images from Realsense
+          depth_img = depth_image
+          color_img = color_image
+          depth_img8 = cv2.convertScaleAbs(depth_img, alpha=0.05)
+
+          # Publish Temperature Info
           max_temp = ktoc(maxVal)
           temp_pub.publish(max_temp)
-          xcoord_pub.publish(maxLoc[0])
-          ycoord_pub.publish(maxLoc[1])
-
+          xcoord_pub.publish(cX)
+          ycoord_pub.publish(cY)
       
-          # display max temperature
-          display_temperature(img, maxVal, maxLoc, (255, 0, 0))
-        
-
-          # Publish Gray Scale Img for visualization
           try:
-            gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            gray_img16 = (gray_img*256).astype("uint16")
-
-            depth_img = depth_image
-            color_img = color_image
-            thermal_img = img
-
-            thermal_img16 = (img*256).astype("uint16")
-            depth_img8 = cv2.convertScaleAbs(depth_img, alpha=0.05)
-            
+     
+            # Combine Images
             stacked_img = np.concatenate((depth_img8, gray_img),axis=1)
             combined_img = cv2.addWeighted(depth_img8, 0.5, gray_img, 0.5, 0)
             combined_img2 = cv2.addWeighted(color_img, 0.3, thermal_img, 0.7, 0)
 
-            # print(color_image.shape)
-
+            # Publish combined images
             bgr_image_pub.publish(bridge.cv2_to_imgmsg(img, "rgb8"))
-            gray_image_pub.publish(bridge.cv2_to_imgmsg(gray_img, 'mono8'))
+            contour_image_pub.publish(bridge.cv2_to_imgmsg(contour_img, 'mono8'))
             stacked_image_pub.publish(bridge.cv2_to_imgmsg(stacked_img, encoding="passthrough"))
             combined_image_pub.publish(bridge.cv2_to_imgmsg(combined_img, encoding="passthrough"))
             combined_image_pub2.publish(bridge.cv2_to_imgmsg(combined_img2, encoding="rgb8"))
 
-            
-            
-            # depth_image_ = cv2.resize(depth_image[:,:], (640, 480))
-            # combined_img = images_overlay(depth_8bit, img)
-            # combined_image_pub.publish(bridge.cv2_to_imgmsg(data, "rgb8"))
           except CvBridgeError as e:
             print(e)
 
