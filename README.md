@@ -3,6 +3,8 @@
 ## Demo
 Run `roslaunch thermal_object_tracking thermal_object_track.launch`
 
+
+Video demo:
 [![1](http://img.youtube.com/vi/ELHQRg86zm0/0.jpg)](https://www.youtube.com/watch?v=ELHQRg86zm0)
 
 ## Hardware Used
